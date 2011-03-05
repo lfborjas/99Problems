@@ -136,6 +136,12 @@
                                                                    (car seq))))))))))
          (do-decode l '())))
                     
+;extracted from the above problem
+(define (multiplicate times [element null] [accum '()])
+    (cond 
+        ((null? element) (list times))
+        ((zero? times) accum)
+        (else (append (multiplicate (- times 1) element accum) (list element)))))
 
 ;Problem 13: Direct run-length:
 (define (direct-encode l)
@@ -150,4 +156,66 @@
          (do-encode l (car l) 0 '())))
 
 ;Problem 14: duplicate elements:
+(define (duplicate l)
+    (flatten (map (lambda (elem) (multiplicate 2 elem)) l)))
+            
 ;Problem 15: multiplicate elements
+;also, generalized for solving the previous problem with a default argument
+(define (multiplicate-all l [t 2])
+    (flatten (map (lambda (elem) (multiplicate t elem)) l)))
+
+;Problem 16: Drop every n-th element of a list
+; N.B: I'm using default args instead of a `letrec` for conciseness.
+; If you have a puritanical but also imaginative mind, use it to rewrite
+; this with a letrec, I -for one- am ok.
+(define (drop-every l n [accum '()] [count 1])
+    (cond
+        ((empty? l) accum)
+        ((= 0 (modulo count n)) (drop-every (cdr l) n accum (+ 1 count)))
+        (else (drop-every (cdr l) n (append accum (list (car l))) (+ 1 count)))))
+
+;Problem 17: Split a list in two parts, with the length of the first part given
+(define (split l len [accum '()] [curr '()])
+    (cond 
+        ((empty? l) (append accum (list curr)))
+        ((zero? len) (split (cdr l) -1 (append accum (list curr)) (list (car l))))
+        (else (split (cdr l) (- len 1) accum (append curr (list (car l)))))))
+
+;Problem 18: Extract a slice from a list, with both limits inclusive
+(define (slice l start end [count 1] [accum '()])
+    (cond 
+        ((= count end) (append accum (list (car l))))
+        ((>= count start) (slice (cdr l) start end (+ count 1) (append accum (list (car l)))))
+        (else (slice (cdr l) start end (+ count 1) accum))))
+        
+;Problem 19: rotate a list N places to the left (using length, append and the solution to P17)
+(define (rotate l n)
+    (let 
+        ([parts (split l (if (< n 0) (+ (length l) n) n))])
+        (append (cadr parts) (car parts))))
+
+;Problem 20: Remove the k-th element from a list    
+(define (remove-at l p [count 1] [accum '()])
+    (cond
+        ((empty? l) accum)
+        ((= p count) (append accum (cdr l)))
+        (else (remove-at (cdr l) p (+ count 1) (append accum (list (car l)))))))
+
+;Problem 21: insert an element at a given position
+(define (insert-at e l p [count 1] [accum '()])
+    (cond
+        ((empty? l) accum)
+        ((= p count) (append accum (list e) l))
+        (else (insert-at e (cdr l) p (+ count 1) (append accum (list (car l)))))))
+
+;Problem 22: create a list containing all integers within a given range
+(define (range start end )
+    (letrec
+        ((do-range
+            (lambda (start end count [accum '()])
+                (cond
+                    ((<= count end) (do-range start end (+ count 1) (append accum (list count))))
+                    (else accum)))))
+        (do-range start end start)))
+
+;Problem 23: Extract a given number of randomly selected elements from a list
