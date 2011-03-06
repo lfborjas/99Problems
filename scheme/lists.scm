@@ -244,10 +244,10 @@
     (take-random l (length l)))
 
 ;Problem 26: generate the combinations of k distinct objects chosen from the n elements of a list
+
 ;Problem 27: group the elements of a set into disjoint sets
 
-;Problem 28a: sorting a list of lists according to their length
-
+;Problem 28
 ;First, my favorite sorting algorithm, generalized for getting the elements via a function
 (define (quicksort l [elem (lambda (e) e)])
          (cond 
@@ -261,9 +261,10 @@
                             (list s))
                     (quicksort (filter (lambda (e) (>= (elem e) (elem s))) xs) elem))))))
 
-;Now, the problem, with the selector function being a length observer:
+;Problem 28a: sorting a list of lists by their length
 (define (length-sort l)
     (quicksort l (lambda (e) (length e))))
+
 ;Problem 28b: sorting a list of lists according to their length frequency
 ;helper function: puts/increments the value associated with a given key
 (define (put-or-inc k t)
@@ -278,4 +279,5 @@
                 (if (empty? l)
                     t
                     (find-freqs (cdr l) (put-or-inc (length (car l)) t))))))
+        ;OMB (oh my batman), it's closures all the way down!!
         (quicksort l (lambda (e) (cadr (assoc (length e) (find-freqs l '())))))))
