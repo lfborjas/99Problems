@@ -262,7 +262,20 @@
                     (quicksort (filter (lambda (e) (>= (elem e) (elem s))) xs) elem))))))
 
 ;Now, the problem, with the selector function being a length observer:
-(define( length-sort l)
+(define (length-sort l)
     (quicksort l (lambda (e) (length e))))
 ;Problem 28b: sorting a list of lists according to their length frequency
+;helper function: puts/increments the value associated with a given key
+(define (put-or-inc k t)
+    (let 
+        ((entry (assoc k t))) 
+        (or (and entry (cons `(,k ,(+ 1 (cadr entry))) t)) (cons `(,k 1) t))))
 
+(define (freq-sort l)
+    (letrec
+        ((find-freqs
+            (lambda (l t)
+                (if (empty? l)
+                    t
+                    (find-freqs (cdr l) (put-or-inc (length (car l)) t))))))
+        (quicksort l (lambda (e) (cadr (assoc (length e) (find-freqs l '())))))))
