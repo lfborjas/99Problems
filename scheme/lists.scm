@@ -219,3 +219,50 @@
         (do-range start end start)))
 
 ;Problem 23: Extract a given number of randomly selected elements from a list
+(define (take-random l n)
+    (letrec
+        ((take-them
+            (lambda (l ln count accum chosen)
+                (cond
+                    ((zero? count) (append accum (list (element-at l chosen))))
+                    (else (take-them 
+                                (remove-at l chosen)
+                                (- ln 1)
+                                (- count 1)
+                                (append accum (list (element-at l chosen)))
+                                (+ (random (- ln 1)) 1)))))))
+         (take-them l (length l) (- n 1) '() (+ (random (length l)) 1))))
+
+;Problem 24: Lotto: draw N numbers from the range 1..M
+(define (lotto n m)
+    (let 
+       ((ballot (range 1 m)))
+    (take-random! ballot n)))
+
+;Problem 25: Generate a random permutation of the elements of a list
+(define (random-permutation l)
+    (take-random l (length l)))
+
+;Problem 26: generate the combinations of k distinct objects chosen from the n elements of a list
+;Problem 27: group the elements of a set into disjoint sets
+
+;Problem 28a: sorting a list of lists according to their length
+
+;First, my favorite sorting algorithm, generalized for getting the elements via a function
+(define (quicksort l [elem (lambda (e) e)])
+         (cond 
+            ((empty? l) l)
+            (else 
+              (let ((s  (car l))
+                   (xs (cdr l)))
+                  (append
+                    (append (quicksort 
+                                (filter (lambda (e) (< (elem e) (elem s))) xs) elem) 
+                            (list s))
+                    (quicksort (filter (lambda (e) (>= (elem e) (elem s))) xs) elem))))))
+
+;Now, the problem, with the selector function being a length observer:
+(define( length-sort l)
+    (quicksort l (lambda (e) (length e))))
+;Problem 28b: sorting a list of lists according to their length frequency
+
